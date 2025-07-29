@@ -11,10 +11,68 @@
       margin: 0;
       padding: 0;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      flex-direction: row;
+      align-items: flex-start;
       min-height: 100vh;
       overflow-x: hidden;
+    }
+    .odds-sidebar {
+      position: sticky;
+      top: 0;
+      left: 0;
+      min-width: 210px;
+      max-width: 240px;
+      background: #222;
+      border-right: 2px solid #ffd60044;
+      padding: 32px 18px 18px 18px;
+      height: 100vh;
+      box-shadow: 2px 0 12px #0002;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .odds-sidebar h2 {
+      color: #ffd600;
+      font-size: 1.25rem;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+      font-weight: bold;
+    }
+    .odds-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: none;
+      color: #ffe082;
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+    .odds-table th, .odds-table td {
+      border: 1px solid #ffd60055;
+      padding: 6px 8px;
+      text-align: center;
+    }
+    .odds-table th {
+      background: #333;
+      color: #ffd600;
+      font-size: 1.05em;
+    }
+    .odds-table td {
+      background: #222;
+    }
+    .main-content {
+      flex: 1 1 0;
+      max-width: 480px;
+      margin-left: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 320px;
+    }
+    @media (max-width: 900px) {
+      .odds-sidebar { display: none; }
+      body { flex-direction: column; align-items: center; }
+      .main-content { margin-left: 0; max-width: 98vw; min-width: 0; }
     }
     #coin-bg {
       position: fixed;
@@ -124,31 +182,124 @@
       letter-spacing: 1px;
       text-shadow: 0 1px 6px #222;
     }
+    .price-sidebar {
+      margin-top: 32px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .price-sidebar h2 {
+      color: #90caf9;
+      font-size: 1.15rem;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+      font-weight: bold;
+    }
+    .price-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: none;
+      color: #ffe082;
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+    .price-table th, .price-table td {
+      border: 1px solid #90caf9;
+      padding: 6px 8px;
+      text-align: center;
+    }
+    .price-table th {
+      background: #263238;
+      color: #90caf9;
+      font-size: 1.05em;
+    }
+    .price-table td {
+      background: #222;
+    }
+    .profit-sidebar {
+      margin-top: 32px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #1b2e1b;
+      border-radius: 8px;
+      padding: 16px 0 10px 0;
+      box-shadow: 0 2px 8px #388e3c22;
+    }
+    .profit-sidebar h2 {
+      color: #43a047;
+      font-size: 1.15rem;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+      font-weight: bold;
+    }
+    .profit-amount {
+      color: #ffd600;
+      font-size: 1.7rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 8px #222;
+    }
   </style>
 </head>
 <body>
-  <div id="coin-bg"></div>
-  <form id="realnameForm" style="margin-top:24px; margin-bottom:10px; background:#222; border:1.5px solid #ffe082; border-radius:8px; padding:18px 24px 10px 24px; min-width:260px; max-width:350px;">
-    <div style="margin-bottom:10px;">
-      <label for="realname" style="font-size:16px;">姓名：</label>
-      <input id="realname" name="realname" type="text" style="font-size:16px; padding:4px 8px; border-radius:4px; border:1px solid #ccc; width:120px;">
+  <div class="odds-sidebar">
+    <h2>中獎倍率</h2>
+    <table class="odds-table">
+      <thead>
+        <tr><th>中獎號碼</th><th>獎金(元)</th><th>機率</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>5</td><td>2億</td><td>1/575,757</td></tr>
+        <tr><td>4</td><td>8000萬</td><td>1/3,405</td></tr>
+        <tr><td>3</td><td>1000萬</td><td>1/95</td></tr>
+        <tr><td>2</td><td>500萬</td><td>1/8</td></tr>
+      </tbody>
+    </table>
+    <div class="price-sidebar">
+      <h2>金額價目表</h2>
+      <table class="price-table">
+        <thead>
+          <tr><th>選號數</th><th>金額(元)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2</td><td>800</td></tr>
+          <tr><td>3</td><td>1500</td></tr>
+          <tr><td>4</td><td>2000</td></tr>
+          <tr><td>5</td><td>3000</td></tr>
+        </tbody>
+      </table>
     </div>
-    <div style="margin-bottom:6px;">
-      <label for="phone" style="font-size:16px;">手機：</label>
-      <input id="phone" name="phone" type="tel" maxlength="10" pattern="09[0-9]{8}" placeholder="09xxxxxxxx" style="font-size:16px; padding:4px 8px; border-radius:4px; border:1px solid #ccc; width:140px;">
+    <div class="profit-sidebar">
+      <h2>本周獲利</h2>
+      <div class="profit-amount">5億</div>
     </div>
-    <div id="formError" style="color:#ff5252; font-size:14px; min-height:18px;"></div>
-  </form>
-  <h1>台灣539</h1>
-  <div class="subtitle">💰 選號、實名、付款一次完成！祝您中大獎 💰</div>
-  <div class="number-grid" id="numberGrid"></div>
-  <div class="controls">
-    <button id="randomBtn">隨機選號</button>
-    <button id="clearBtn">清除</button>
-    <button id="payBtn" style="display:none; background:#43a047;">前往付款</button>
   </div>
-  <div class="selected-numbers" id="selectedNumbers">已選號碼：無</div>
-
+  <div class="main-content">
+    <div id="coin-bg"></div>
+    <form id="realnameForm" style="margin-top:24px; margin-bottom:10px; background:#222; border:1.5px solid #ffe082; border-radius:8px; padding:18px 24px 10px 24px; min-width:260px; max-width:350px;">
+      <div style="margin-bottom:10px;">
+        <label for="realname" style="font-size:16px;">姓名：</label>
+        <input id="realname" name="realname" type="text" style="font-size:16px; padding:4px 8px; border-radius:4px; border:1px solid #ccc; width:120px;">
+      </div>
+      <div style="margin-bottom:6px;">
+        <label for="phone" style="font-size:16px;">手機：</label>
+        <input id="phone" name="phone" type="tel" maxlength="10" pattern="09[0-9]{8}" placeholder="09xxxxxxxx" style="font-size:16px; padding:4px 8px; border-radius:4px; border:1px solid #ccc; width:140px;">
+      </div>
+      <div id="formError" style="color:#ff5252; font-size:14px; min-height:18px;"></div>
+    </form>
+    <h1>台灣539</h1>
+    <div class="subtitle">💰 選號、實名、付款一次完成！祝您中大獎 💰</div>
+    <div class="number-grid" id="numberGrid"></div>
+    <div class="controls">
+      <button id="randomBtn">隨機選號</button>
+      <button id="clearBtn">清除</button>
+      <button id="payBtn" style="display:none; background:#43a047;">前往付款</button>
+    </div>
+    <div class="selected-numbers" id="selectedNumbers">已選號碼：無</div>
+  </div>
   <script>
     const MIN_SELECT = 2;
     const MAX_SELECT = 5;
