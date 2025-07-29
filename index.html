@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>台灣539</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #111;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    #coin-bg {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+    main, h1, .number-grid, .controls, .selected-numbers {
+      position: relative;
+      z-index: 1;
+    }
+    h1 {
+      margin-top: 32px;
+      margin-bottom: 0;
+      font-size: 2.7rem;
+      font-weight: bold;
+      background: linear-gradient(90deg, #FFD600 30%, #FFB300 70%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 2px 2px 8px #222, 0 2px 8px #333;
+      letter-spacing: 2px;
+    }
+    .subtitle {
+      font-size: 1.15rem;
+      color: #ffe082;
+      margin-bottom: 18px;
+      margin-top: 6px;
+      letter-spacing: 1px;
+      font-weight: 500;
+    }
+    label {
+      font-weight: bold;
+      color: #90caf9;
+      letter-spacing: 1px;
+    }
+    #formError {
+      color: #ff5252;
+      font-size: 15px;
+      min-height: 18px;
+      font-weight: 500;
+    }
+    .number-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 44px);
+      gap: 10px;
+      margin: 30px 0 20px 0;
+    }
+    .number-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid #ffe082;
+      background: #222;
+      color: #ffe082;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      outline: none;
+      font-weight: bold;
+      box-shadow: 0 2px 6px #000;
+    }
+    .number-btn.selected {
+      background: #ffd600;
+      color: #222;
+      border-color: #ffb300;
+      font-weight: bold;
+      box-shadow: 0 2px 10px #ffd60055;
+    }
+    .number-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .controls {
+      margin-bottom: 18px;
+      display: flex;
+      gap: 12px;
+    }
+    .controls button {
+      padding: 10px 22px;
+      font-size: 18px;
+      border: none;
+      border-radius: 6px;
+      background: #1976d2;
+      color: #fffde7;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      font-weight: bold;
+      box-shadow: 0 2px 8px #90caf9aa;
+      letter-spacing: 1px;
+    }
+    .controls button:hover {
+      background: #1565c0;
+      box-shadow: 0 4px 16px #1976d2aa;
+    }
+    #payBtn {
+      background: #43a047;
+    }
+    #payBtn:hover {
+      background: #2e7d32;
+    }
+    .selected-numbers {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      color: #ffe082;
+      min-height: 28px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-shadow: 0 1px 6px #222;
+    }
+  </style>
+</head>
+<body>
+  <div id="coin-bg"></div>
+  <form id="realnameForm" style="margin-top:24px; margin-bottom:10px; background:#222; border:1.5px solid #ffe082; border-radius:8px; padding:18px 24px 10px 24px; min-width:260px; max-width:350px;">
+    <div style="margin-bottom:10px;">
+      <label for="realname" style="font-size:16px;">姓名：</label>
+      <input id="realname" name="realname" type="text" style="font-size:16px; padding:4px 8px; border-radius:4px; border:1px solid #ccc; width:120px;">
+    </div>
+    <div style="margin-bottom:6px;">
+      <label for="phone" style="font-size:16px;">手機：</label>
+      <input id="phone" name="phone" type="tel" maxlength="10" pattern="09[0-9]{8}" placeholder="09xxxxxxxx" style="font-size:16px; padding:4px 8px; border-radius:4px; border:1px solid #ccc; width:140px;">
+    </div>
+    <div id="formError" style="color:#ff5252; font-size:14px; min-height:18px;"></div>
+  </form>
+  <h1>台灣539</h1>
+  <div class="subtitle">💰 選號、實名、付款一次完成！祝您中大獎 💰</div>
+  <div class="number-grid" id="numberGrid"></div>
+  <div class="controls">
+    <button id="randomBtn">隨機選號</button>
+    <button id="clearBtn">清除</button>
+    <button id="payBtn" style="display:none; background:#43a047;">前往付款</button>
+  </div>
+  <div class="selected-numbers" id="selectedNumbers">已選號碼：無</div>
+
+  <script>
+    const MIN_SELECT = 2;
+    const MAX_SELECT = 5;
+    const numberGrid = document.getElementById('numberGrid');
+    const selectedNumbersDiv = document.getElementById('selectedNumbers');
+    const randomBtn = document.getElementById('randomBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const payBtn = document.getElementById('payBtn');
+    let selected = [];
+
+    // 金幣SVG
+    const coinSVG = `<svg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'><circle cx='16' cy='16' r='15' fill='#FFD600' stroke='#FFB300' stroke-width='2'/><circle cx='16' cy='16' r='8' fill='#FFF59D' stroke='#FFB300' stroke-width='1.5'/></svg>`;
+    const coinBg = document.getElementById('coin-bg');
+    function createCoin() {
+      const coin = document.createElement('div');
+      coin.innerHTML = coinSVG;
+      coin.style.position = 'absolute';
+      coin.style.left = Math.random() * 100 + 'vw';
+      coin.style.top = '-40px';
+      coin.style.opacity = 0.85 + Math.random() * 0.15;
+      coin.style.transform = `scale(${0.7 + Math.random() * 0.6}) rotate(${Math.random()*360}deg)`;
+      coin.style.transition = 'top 4.5s linear, opacity 1.2s';
+      coinBg.appendChild(coin);
+      setTimeout(() => {
+        coin.style.top = (90 + Math.random()*5) + 'vh';
+        coin.style.opacity = 0.1;
+      }, 30);
+      setTimeout(() => coin.remove(), 5000);
+    }
+    setInterval(createCoin, 400);
+
+    // 產生號碼按鈕
+    for (let i = 1; i <= 39; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'number-btn';
+      btn.textContent = i;
+      btn.value = i;
+      btn.addEventListener('click', () => toggleNumber(i, btn));
+      numberGrid.appendChild(btn);
+    }
+
+    function toggleNumber(num, btn) {
+      const idx = selected.indexOf(num);
+      if (idx > -1) {
+        selected.splice(idx, 1);
+        btn.classList.remove('selected');
+      } else {
+        if (selected.length >= MAX_SELECT) return;
+        selected.push(num);
+        btn.classList.add('selected');
+      }
+      updateUI();
+    }
+
+    const realnameInput = document.getElementById('realname');
+    const phoneInput = document.getElementById('phone');
+    const formError = document.getElementById('formError');
+    function validateForm() {
+      const name = realnameInput.value.trim();
+      const phone = phoneInput.value.trim();
+      let valid = true;
+      let msg = '';
+      if (!name) {
+        valid = false;
+        msg = '請輸入姓名';
+      } else if (!/^09[0-9]{8}$/.test(phone)) {
+        valid = false;
+        msg = '請輸入正確手機號碼';
+      }
+      formError.textContent = msg;
+      return valid;
+    }
+    function setNumberBtnsEnabled(enabled) {
+      const btns = numberGrid.querySelectorAll('.number-btn');
+      btns.forEach(btn => btn.disabled = !enabled);
+    }
+    function updateUI() {
+      // 更新已選號碼顯示
+      if (selected.length === 0) {
+        selectedNumbersDiv.textContent = '已選號碼：無';
+      } else {
+        selectedNumbersDiv.textContent = '已選號碼：' + selected.slice().sort((a,b)=>a-b).join(', ');
+      }
+      // 號碼按鈕狀態
+      const btns = numberGrid.querySelectorAll('.number-btn');
+      const formValid = validateForm();
+      btns.forEach(btn => {
+        const num = parseInt(btn.value);
+        if (selected.includes(num)) {
+          btn.classList.add('selected');
+        } else {
+          btn.classList.remove('selected');
+        }
+        btn.disabled = !formValid || (selected.length >= MAX_SELECT && !selected.includes(num));
+      });
+      // 顯示/隱藏付款按鈕（2~5個號碼時才顯示且表單正確）
+      payBtn.style.display = (formValid && selected.length >= MIN_SELECT && selected.length <= MAX_SELECT) ? '' : 'none';
+    }
+
+    randomBtn.addEventListener('click', () => {
+      selected = [];
+      const pool = Array.from({length: 39}, (_, i) => i + 1);
+      for (let i = 0; i < MAX_SELECT; i++) {
+        const idx = Math.floor(Math.random() * pool.length);
+        selected.push(pool[idx]);
+        pool.splice(idx, 1);
+      }
+      updateUI();
+    });
+
+    clearBtn.addEventListener('click', () => {
+      selected = [];
+      updateUI();
+    });
+
+    realnameInput.addEventListener('input', updateUI);
+    phoneInput.addEventListener('input', updateUI);
+
+    payBtn.addEventListener('click', () => {
+      if (!validateForm() || selected.length < MIN_SELECT || selected.length > MAX_SELECT) return;
+      const nums = selected.slice().sort((a,b)=>a-b).join(',');
+      const name = encodeURIComponent(realnameInput.value.trim());
+      const phone = encodeURIComponent(phoneInput.value.trim());
+      window.location.href = `payment.html?nums=${nums}&name=${name}&phone=${phone}`;
+    });
+
+    updateUI();
+  </script>
+</body>
+</html> 
